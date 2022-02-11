@@ -21,10 +21,10 @@ jobs:
           curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
           echo "${HOME}/.poetry/bin" >> $GITHUB_PATH
 
-        - name: Install dependencies
+      - name: Install dependencies
         run: |
           ${HOME}/.poetry/bin/poetry install
 
-        - name: Test python project
+      - name: Test python project
         run: |
           poetry run python manage.py test
