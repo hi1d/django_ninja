@@ -41,6 +41,5 @@ ignore_errors = true
 django_settings_module = "django_ninja.settings"
 
 # isort
-
 [tool.isort]
 profile = "black"
