@@ -29,7 +29,7 @@ SECRET_KEY = "django-insecure-%bqwr(bebgys*_2d$as@5h1!r4_-n=!w6kl(p=^7xt549&3^qt
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS: List[str] = ["testserver"]
+ALLOWED_HOSTS: List[str] = ["*"]
 
 
 # Application definition
@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "tabom.apps.TabomConfig",
+    "tabom",
 ]
 
 MIDDLEWARE = [

@@ -12,7 +12,4 @@ class Like(BaseModel):
     article = models.ForeignKey(Article, on_delete=models.CASCADE)
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(
-                fields=["user", "article"], name="unique_user_article")
-        ]
+        constraints = [models.UniqueConstraint(fields=["user", "article"], name="unique_user_article")]

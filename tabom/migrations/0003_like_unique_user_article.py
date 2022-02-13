@@ -6,12 +6,12 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('tabom', '0002_alter_article_created_at_alter_article_updated_at_and_more'),
+        ("tabom", "0002_alter_article_created_at_alter_article_updated_at_and_more"),
     ]
 
     operations = [
         migrations.AddConstraint(
-            model_name='like',
-            constraint=models.UniqueConstraint(fields=('user', 'article'), name='unique_user_article'),
+            model_name="like",
+            constraint=models.UniqueConstraint(fields=("user", "article"), name="unique_user_article"),
         ),
     ]
