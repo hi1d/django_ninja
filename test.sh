@@ -10,7 +10,7 @@ echo "Run isort"
 poetry run isort .
 
 echo "Run mypy"
-poetry run mypy .
+poetry run mypy . --namespace-packages
 
 echo "Run tests"
 python manage.py test
