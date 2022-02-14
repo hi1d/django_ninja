@@ -1,5 +1,3 @@
-from hashlib import md5
-
 from django.db import models
 
 from tabom.models.article import Article
