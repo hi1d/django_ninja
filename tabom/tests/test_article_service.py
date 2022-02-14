@@ -6,15 +6,25 @@ from pkg_resources import invalid_marker
 from tabom.models.article import Article
 from tabom.models.like import Like
 from tabom.models.user import User
-from tabom.services.article_service import delete_an_article, get_an_article, get_article_list
+from tabom.services.article_service import create_an_article, delete_an_article, get_an_article, get_article_list
 from tabom.services.like_service import do_like
 
 
 class TestArticleService(TestCase):
+
+    def test_you_can_create_an_artice(self) -> None:
+        # Given
+        title = "test_title"
+        
+        # When
+        article = create_an_article(title)
+        
+        # Then
+        self.assertEqual(article.title, title)
     def test_you_can_get_an_article_by_id(self) -> None:
         # Given
         title = "test_title"
-        article = Article.objects.create(title=title)
+        article = create_an_article(title)
 
         # When
         result_article = get_an_article(0, article.id)
@@ -50,7 +60,7 @@ class TestArticleService(TestCase):
 
     def test_temp(self) -> None:
         user = User.objects.create(name="tester")
-        article = Article.objects.create(title="test_title")
+        article = create_an_article('test_title')
         like = Like.objects.create(user_id=user.id, article_id=article.id)
         Article.objects.create(title="test_title2")
         with CaptureQueriesContext(connection) as ctx:
@@ -65,7 +75,7 @@ class TestArticleService(TestCase):
     def test_get_article_list_should_contain_my_likes_when_like_exists(self) -> None:
         # Given
         user = User.objects.create(name="test_user")
-        article1 = Article.objects.create(title="artice1")
+        article1 = create_an_article("article1")
         like = do_like(user.id, article1.id)
         Article.objects.create(title="article2")
 
@@ -78,7 +88,7 @@ class TestArticleService(TestCase):
 
     def test_get_article_list_should_not_contain_my_likes_when_user_id_is_zero(self) -> None:
         user = User.objects.create(name="test")
-        article = Article.objects.create(title="test_title")
+        article = create_an_article('test_title')
         Like.objects.create(user_id=user.id, article_id=article.id)
         Article.objects.create(title="test_title2")
         invalid_user_id = 0
@@ -91,7 +101,7 @@ class TestArticleService(TestCase):
     def test_you_can_delete_an_article(self) -> None:
         # Given
         user = User.objects.create(name="user1")
-        article = Article.objects.create(title="artice1")
+        article = create_an_article('test_title')
         like = do_like(user.id, article.id)
         
         # When
