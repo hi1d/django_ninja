@@ -1,3 +1,4 @@
+from django.http import response
 from django.test import TestCase
 
 from tabom.models import User
@@ -62,3 +63,11 @@ class TestArticleRouter(TestCase):
 
         self.assertEqual(204, response.status_code)
         self.assertFalse(Article.objects.filter(id=article.id).exists())
+
+    def test_get_article_404(self) -> None:
+        invalid_article_id = 9988
+
+        response = self.client.get(f"/api/v1/articles/{invalid_article_id}", {"user_id": 0})
+
+        self.assertEqual(404, response.status_code)
+        self.assertEqual(f"Article #{invalid_article_id} Not Found", response.json()["detail"])

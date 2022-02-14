@@ -51,7 +51,7 @@ class TestArticleService(TestCase):
         like = do_like(user.id, articles[-1].id)
 
         with CaptureQueriesContext(connection) as ctx:
-            with self.assertNumQueries(3):
+            with self.assertNumQueries(2):
                 result_articles = get_article_list(user.id, 0, 10)
                 result_count = [a.like_count for a in result_articles]
 
