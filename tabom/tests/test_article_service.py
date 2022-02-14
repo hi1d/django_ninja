@@ -1,12 +1,12 @@
-import django
 from django.db import connection
 from django.test import TestCase
 from django.test.utils import CaptureQueriesContext
+from pkg_resources import invalid_marker
 
 from tabom.models.article import Article
 from tabom.models.like import Like
 from tabom.models.user import User
-from tabom.services.article_service import get_an_article, get_article_list
+from tabom.services.article_service import delete_an_article, get_an_article, get_article_list
 from tabom.services.like_service import do_like
 
 
@@ -17,7 +17,7 @@ class TestArticleService(TestCase):
         article = Article.objects.create(title=title)
 
         # When
-        result_article = get_an_article(article.id)
+        result_article = get_an_article(0, article.id)
 
         # Then
         self.assertEqual(article.id, result_article.id)
@@ -29,7 +29,7 @@ class TestArticleService(TestCase):
 
         # Expect
         with self.assertRaises(Article.DoesNotExist):
-            get_an_article(invalid_article_id)
+            get_an_article(0, invalid_article_id)
 
     def test_get_article_list_should_prefetch_like(self) -> None:
         user = User.objects.create(name="test_user")
@@ -37,8 +37,8 @@ class TestArticleService(TestCase):
         like = do_like(user.id, articles[-1].id)
 
         with CaptureQueriesContext(connection) as ctx:
-            with self.assertNumQueries(2):
-                result_articles = get_article_list(0, 10)
+            with self.assertNumQueries(3):
+                result_articles = get_article_list(user.id, 0, 10)
                 result_count = [a.like_set.count() for a in result_articles]
 
                 self.assertEqual(len(result_articles), 10)
@@ -61,3 +61,42 @@ class TestArticleService(TestCase):
             with self.assertNumQueries(2):
                 result_like = Like.objects.prefetch_related("user").get(id=like.id)
                 self.assertEqual(like.id, result_like.id)
+
+    def test_get_article_list_should_contain_my_likes_when_like_exists(self) -> None:
+        # Given
+        user = User.objects.create(name="test_user")
+        article1 = Article.objects.create(title="artice1")
+        like = do_like(user.id, article1.id)
+        Article.objects.create(title="article2")
+
+        # When
+        articles = get_article_list(user.id, 0, 10)
+
+        # Then
+        self.assertEqual(like.id, articles[1].my_likes[0].id)
+        self.assertEqual(0, len(articles[0].my_likes))
+
+    def test_get_article_list_should_not_contain_my_likes_when_user_id_is_zero(self) -> None:
+        user = User.objects.create(name="test")
+        article = Article.objects.create(title="test_title")
+        Like.objects.create(user_id=user.id, article_id=article.id)
+        Article.objects.create(title="test_title2")
+        invalid_user_id = 0
+
+        articles = get_article_list(invalid_user_id, 0, 10)
+
+        self.assertEqual(0, len(articles[1].my_likes))
+        self.assertEqual(0, len(articles[0].my_likes))
+
+    def test_you_can_delete_an_article(self) -> None:
+        # Given
+        user = User.objects.create(name="user1")
+        article = Article.objects.create(title="artice1")
+        like = do_like(user.id, article.id)
+        
+        # When
+        delete_an_article(article.id)
+        
+        # Then
+        self.assertFalse(Article.objects.filter(id=article.id).exists())
+        self.assertFalse(Like.objects.filter(id=like.id).exists())
